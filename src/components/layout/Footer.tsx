@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Github } from 'lucide-react';
+import { Github, Heart } from 'lucide-react';
+import { Button } from '../ui/button';
 
 export default function Footer() {
   return (
@@ -17,16 +18,21 @@ export default function Footer() {
           </a>
           .
         </p>
-        <div className="flex items-center gap-2">
-            <Github className="h-4 w-4" />
-            <a
-                href="https://github.com/shahirislam/dev-note"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium underline underline-offset-4"
-            >
-                Open for contributions on GitHub
-            </a>
+        <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" disabled>
+                <Heart className="mr-2 h-4 w-4" />
+                Donate
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+                <a
+                    href="https://github.com/shahirislam/dev-note"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <Github className="mr-2 h-4 w-4" />
+                    Contribute
+                </a>
+            </Button>
         </div>
       </div>
     </footer>
