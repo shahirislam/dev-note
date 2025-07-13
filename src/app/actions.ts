@@ -3,12 +3,18 @@
 import { generateNote } from '@/ai/flows/note-flow';
 import { noteGenerationInputSchema, type NoteGenerationInput, type NoteGenerationOutput } from '@/ai/schemas/note-schema';
 import { z } from 'zod';
-import { configureGenkit } from '@/ai/genkit';
+import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 export async function generateNoteAction(input: NoteGenerationInput, apiKey: string): Promise<NoteGenerationOutput | null> {
   try {
     // Configure Genkit on the server with the user's key for this action
-    configureGenkit(apiKey);
+    if (!apiKey) {
+      throw new Error("API key is missing.");
+    }
+    ai.configure({
+      plugins: [googleAI({ apiKey })],
+    });
     
     const validatedInput = noteGenerationInputSchema.parse(input);
     const result = await generateNote(validatedInput);
