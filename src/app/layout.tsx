@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'DevFlow - Project & Task Tracker',
+  title: 'DevDiary - Project & Task Tracker',
   description: 'A simple, clean website to help a solo software developer keep track of projects, project-specific tasks, and small notes.',
 };
 

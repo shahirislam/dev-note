@@ -35,7 +35,7 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useLocalStorage<AppData>('devflow-data', defaultAppData);
+  const [data, setData] = useLocalStorage<AppData>('devdiary-data', defaultAppData);
 
   const setApiKey = useCallback((key: string) => {
     setData(d => ({ ...d, apiKey: key }));

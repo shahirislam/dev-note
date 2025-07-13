@@ -11,7 +11,7 @@ export default function Header() {
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <LayoutGrid className="h-6 w-6 text-primary" />
-            <span className="font-bold">DevFlow</span>
+            <span className="font-bold">DevDiary</span>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">

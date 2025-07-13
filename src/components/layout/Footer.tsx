@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="border-t border-border/40 py-6">
       <div className="container flex flex-col items-center justify-between gap-4 text-center text-sm text-muted-foreground sm:flex-row">
         <p>
-          &copy; {new Date().getFullYear()} DevFlow. Developed by{' '}
+          &copy; {new Date().getFullYear()} DevDiary. Developed by{' '}
           <a
             href="https://github.com/shahirislam"
             target="_blank"

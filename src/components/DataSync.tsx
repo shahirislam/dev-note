@@ -19,7 +19,7 @@ export function DataSync() {
       )}`;
       const link = document.createElement('a');
       link.href = jsonString;
-      link.download = `devflow_backup_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `devdiary_backup_${new Date().toISOString().split('T')[0]}.json`;
       link.click();
       toast({
         title: 'Success',
