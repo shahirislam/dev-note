@@ -4,9 +4,29 @@ import { useData } from "@/contexts/DataContext";
 import ProjectCard from "./ProjectCard";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { FolderKanban } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 export default function ProjectList() {
   const { data } = useData();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <section>
+        <h2 className="text-2xl font-semibold tracking-tight mb-4">Projects</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section>

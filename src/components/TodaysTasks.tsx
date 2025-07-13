@@ -4,13 +4,20 @@ import { useData } from "@/contexts/DataContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import Link from "next/link";
-import { CalendarCheck2, CheckCircle2 } from "lucide-react";
+import { CalendarCheck2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function TodaysTasks() {
   const { getTodaysTasks, getProjectById } = useData();
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const todaysTasks = getTodaysTasks();
 
-  if (todaysTasks.length === 0) {
+  if (!isClient || todaysTasks.length === 0) {
     return null;
   }
 
