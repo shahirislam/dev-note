@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/Header';
 import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
+import Footer from '@/components/layout/Footer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -32,6 +33,7 @@ export default function RootLayout({
               <main className="container mx-auto max-w-5xl flex-1 px-4 py-8 md:py-12">
                 {children}
               </main>
+              <Footer />
               <Toaster />
             </div>
           </DataProvider>
