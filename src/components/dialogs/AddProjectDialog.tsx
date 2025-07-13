@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,7 +26,7 @@ import { useData } from "@/contexts/DataContext";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  title: z.string().min(1, { message: "Project title is required." }).max(50),
+  title: z.string().trim().min(1, { message: "Project title is required." }).max(50),
 });
 
 interface AddProjectDialogProps {
@@ -36,6 +37,7 @@ interface AddProjectDialogProps {
 export default function AddProjectDialog({ open, onOpenChange }: AddProjectDialogProps) {
   const { addProject } = useData();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,14 +46,32 @@ export default function AddProjectDialog({ open, onOpenChange }: AddProjectDialo
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    addProject(values.title);
-    toast({
-      title: "Project Created",
-      description: `Project "${values.title}" has been successfully created.`,
-    });
-    form.reset();
-    onOpenChange(false);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      const newProject = addProject(values.title);
+      if (newProject) {
+        toast({
+          title: "Project Created",
+          description: `Project "${values.title}" has been successfully created.`,
+        });
+        form.reset();
+        onOpenChange(false);
+      } else {
+        form.setError("title", {
+          type: "manual",
+          message: "A project with this title already exists.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -79,8 +99,10 @@ export default function AddProjectDialog({ open, onOpenChange }: AddProjectDialo
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">Create Project</Button>
+              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create Project"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

@@ -8,7 +8,7 @@ export default function Footer() {
         <p>
           &copy; {new Date().getFullYear()} DevFlow. Developed by{' '}
           <a
-            href="https://github.com/shahir-islam"
+            href="https://github.com/shahirislam"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium underline underline-offset-4"
@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="flex items-center gap-2">
             <Github className="h-4 w-4" />
             <a
-                href="https://github.com/firebase/genkit-patterns/tree/main/apps/dev-flow-nextjs"
+                href="https://github.com/shahirislam/dev-note"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium underline underline-offset-4"

@@ -15,7 +15,7 @@ const defaultAppData: AppData = {
 interface DataContextType {
   data: AppData;
   setApiKey: (key: string) => void;
-  addProject: (title: string) => Project;
+  addProject: (title: string) => Project | null;
   updateProject: (project: Project) => void;
   deleteProject: (projectId: string) => void;
   getProjectById: (projectId: string) => Project | undefined;
@@ -40,15 +40,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setData(d => ({ ...d, apiKey: key }));
   }, [setData]);
 
-  const addProject = useCallback((title: string): Project => {
+  const addProject = useCallback((title: string): Project | null => {
+    const trimmedTitle = title.trim();
+    if (data.projects.some(p => p.title.toLowerCase() === trimmedTitle.toLowerCase())) {
+      return null; // Project with the same title already exists
+    }
     const newProject: Project = {
       id: crypto.randomUUID(),
-      title,
+      title: trimmedTitle,
       createdAt: new Date().toISOString(),
     };
     setData(d => ({ ...d, projects: [...d.projects, newProject] }));
     return newProject;
-  }, [setData]);
+  }, [setData, data.projects]);
 
   const updateProject = useCallback((project: Project) => {
     setData(d => ({ ...d, projects: d.projects.map(p => p.id === project.id ? project : p) }));

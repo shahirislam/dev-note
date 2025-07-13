@@ -31,10 +31,10 @@ import type { Task } from "@/lib/types";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
-  title: z.string().min(1, { message: "Task title is required." }).max(100),
+  title: z.string().trim().min(1, { message: "Task title is required." }).max(100),
   description: z.string().max(500).optional(),
   dueDate: z.date().optional(),
 });
@@ -49,6 +49,7 @@ interface AddTaskDialogProps {
 export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdit }: AddTaskDialogProps) {
   const { addTask, updateTask } = useData();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!taskToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -75,25 +76,35 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
     }
   }, [taskToEdit, form, open]);
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      const taskData = {
+        ...values,
+        projectId,
+        description: values.description || '',
+        dueDate: values.dueDate ? values.dueDate.toISOString() : null,
+      };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const taskData = {
-      ...values,
-      projectId,
-      description: values.description || '',
-      dueDate: values.dueDate ? values.dueDate.toISOString() : null,
-    };
+      if (isEditing) {
+        updateTask({ ...taskToEdit, ...taskData });
+        toast({ title: "Task Updated", description: "Your task has been successfully updated." });
+      } else {
+        addTask(taskData);
+        toast({ title: "Task Added", description: "A new task has been added to your project." });
+      }
 
-    if (isEditing) {
-      updateTask({ ...taskToEdit, ...taskData });
-      toast({ title: "Task Updated", description: "Your task has been successfully updated." });
-    } else {
-      addTask(taskData);
-      toast({ title: "Task Added", description: "A new task has been added to your project." });
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    form.reset();
-    onOpenChange(false);
   }
 
   return (
@@ -173,8 +184,10 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">{isEditing ? "Save Changes" : "Add Task"}</Button>
+              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (isEditing ? "Saving..." : "Adding...") : (isEditing ? "Save Changes" : "Add Task")}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

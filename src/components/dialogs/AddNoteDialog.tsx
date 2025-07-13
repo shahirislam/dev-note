@@ -3,6 +3,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,7 +29,7 @@ import { useEffect } from "react";
 import { AiNoteEditor } from "../AiNoteEditor";
 
 const formSchema = z.object({
-  title: z.string().max(100).optional(),
+  title: z.string().trim().max(100).optional(),
   content: z.string().min(1, { message: "Note content cannot be empty." }),
 });
 
@@ -42,6 +43,7 @@ interface AddNoteDialogProps {
 export default function AddNoteDialog({ open, onOpenChange, projectId, noteToEdit }: AddNoteDialogProps) {
   const { addNote, updateNote } = useData();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!noteToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -68,23 +70,34 @@ export default function AddNoteDialog({ open, onOpenChange, projectId, noteToEdi
     }
   }, [noteToEdit, form, open]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const noteData = {
-      ...values,
-      projectId,
-      title: values.title || '',
-    };
-    
-    if (isEditing) {
-      updateNote({ ...noteToEdit, ...noteData });
-      toast({ title: "Note Updated", description: "Your note has been successfully updated." });
-    } else {
-      addNote(noteData);
-      toast({ title: "Note Added", description: "A new note has been added to your project." });
-    }
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      const noteData = {
+        ...values,
+        projectId,
+        title: values.title || '',
+      };
+      
+      if (isEditing) {
+        updateNote({ ...noteToEdit, ...noteData });
+        toast({ title: "Note Updated", description: "Your note has been successfully updated." });
+      } else {
+        addNote(noteData);
+        toast({ title: "Note Added", description: "A new note has been added to your project." });
+      }
 
-    form.reset();
-    onOpenChange(false);
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const handleNoteGenerated = (data: { title: string; content: string }) => {
@@ -139,8 +152,10 @@ export default function AddNoteDialog({ open, onOpenChange, projectId, noteToEdi
             />
 
             <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">{isEditing ? "Save Changes" : "Add Note"}</Button>
+              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (isEditing ? "Saving..." : "Adding...") : (isEditing ? "Save Changes" : "Add Note")}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
