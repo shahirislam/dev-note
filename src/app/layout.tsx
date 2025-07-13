@@ -5,6 +5,12 @@ import { DataProvider } from '@/contexts/DataContext';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/Header';
 import { cn } from '@/lib/utils';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'DevFlow - Project & Task Tracker',
@@ -18,15 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className={cn('font-body antialiased', 'min-h-screen bg-background font-sans')}>
+      <body className={cn('min-h-screen bg-background font-sans antialiased', inter.variable)}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <DataProvider>
             <div className="relative flex min-h-dvh flex-col bg-background">
