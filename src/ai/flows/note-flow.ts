@@ -46,11 +46,9 @@ const noteFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-        const model = googleAI({ apiKey: input.apiKey });
-
         const { output } = await ai.generate({
-            model: model,
-            prompt: noteGenerationPrompt.prompt, // We use the raw prompt string
+            model: googleAI.model('gemini-1.5-flash-latest'),
+            prompt: noteGenerationPrompt.prompt, 
             input: {
                 contextNotes: input.contextNotes,
                 prompt: input.prompt,
@@ -58,6 +56,9 @@ const noteFlow = ai.defineFlow(
             output: {
                 schema: noteGenerationOutputSchema,
             },
+            config: {
+                auth: { apiKey: input.apiKey! },
+            }
         });
 
         return output!;
@@ -65,13 +66,12 @@ const noteFlow = ai.defineFlow(
         console.error("Error generating note with LLM:", error);
         return {
             title: "Error",
-            content: "Sorry, I was unable to generate a note at this time."
+            content: "Sorry, I was unable to generate a note at this time. This could be due to an invalid API key or a network issue."
         };
     }
   }
 );
 
-// The exported function now accepts the key
 export async function generateNote(input: NoteGenerationWithKeyInput): Promise<NoteGenerationOutput> {
   return await noteFlow(input);
 }

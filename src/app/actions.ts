@@ -10,22 +10,21 @@ export async function generateNoteAction(input: NoteGenerationInput, apiKey: str
       throw new Error("API key is missing.");
     }
     
-    // Validate the user-provided input against the base schema
     const validatedInput = noteGenerationInputSchema.parse(input);
     
-    // Call the flow with the validated input and the API key
     const result = await generateNote({ ...validatedInput, apiKey });
 
     if (result.title === 'Error') {
-      return null;
+      // Pass the specific error message to the client
+      return { title: 'AI Generation Failed', content: result.content };
     }
     return result;
 
   } catch (error) {
     console.error("Error running noteFlow action:", error);
     if (error instanceof z.ZodError) {
-      return null;
+      return { title: 'AI Generation Failed', content: 'Invalid input provided.' };
     }
-    return null;
+    return { title: 'AI Generation Failed', content: 'An unexpected error occurred.' };
   }
 }

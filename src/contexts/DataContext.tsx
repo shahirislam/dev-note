@@ -37,113 +37,114 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useLocalStorage<AppData>('devflow-data', defaultAppData);
 
   const setApiKey = useCallback((key: string) => {
-    setData(d => ({...d, apiKey: key}));
+    setData(d => ({ ...d, apiKey: key }));
   }, [setData]);
 
-  const value = useMemo(() => {
-    const getProjectById = (projectId: string) => data.projects.find(p => p.id === projectId);
+  const addProject = useCallback((title: string): Project => {
+    const newProject: Project = {
+      id: crypto.randomUUID(),
+      title,
+      createdAt: new Date().toISOString(),
+    };
+    setData(d => ({ ...d, projects: [...d.projects, newProject] }));
+    return newProject;
+  }, [setData]);
 
-    const addProject = (title: string): Project => {
-      const newProject: Project = {
-        id: crypto.randomUUID(),
-        title,
-        createdAt: new Date().toISOString(),
-      };
-      setData(d => ({ ...d, projects: [...d.projects, newProject] }));
-      return newProject;
-    };
+  const updateProject = useCallback((project: Project) => {
+    setData(d => ({ ...d, projects: d.projects.map(p => p.id === project.id ? project : p) }));
+  }, [setData]);
 
-    const updateProject = (project: Project) => {
-      setData(d => ({ ...d, projects: d.projects.map(p => p.id === project.id ? project : p) }));
-    };
-    
-    const deleteProject = (projectId: string) => {
-      setData(d => ({
-        ...d,
-        projects: d.projects.filter(p => p.id !== projectId),
-        tasks: d.tasks.filter(t => t.projectId !== projectId),
-        notes: d.notes.filter(n => n.projectId !== projectId),
-      }));
-    };
+  const deleteProject = useCallback((projectId: string) => {
+    setData(d => ({
+      ...d,
+      projects: d.projects.filter(p => p.id !== projectId),
+      tasks: d.tasks.filter(t => t.projectId !== projectId),
+      notes: d.notes.filter(n => n.projectId !== projectId),
+    }));
+  }, [setData]);
 
-    const getTasksByProjectId = (projectId: string) => {
-      return data.tasks.filter(t => t.projectId === projectId).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    };
+  const getProjectById = useCallback((projectId: string) => data.projects.find(p => p.id === projectId), [data.projects]);
 
-    const getTodaysTasks = () => {
-      return data.tasks.filter(t => t.dueDate && isToday(parseISO(t.dueDate)) && !t.isDone);
-    };
+  const getTasksByProjectId = useCallback((projectId: string) => {
+    return data.tasks.filter(t => t.projectId === projectId).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [data.tasks]);
 
-    const addTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'isDone'>): Task => {
-      const newTask: Task = {
-        ...taskData,
-        id: crypto.randomUUID(),
-        isDone: false,
-        createdAt: new Date().toISOString(),
-      };
-      setData(d => ({ ...d, tasks: [...d.tasks, newTask] }));
-      return newTask;
-    };
+  const getTodaysTasks = useCallback(() => {
+    return data.tasks.filter(t => t.dueDate && isToday(parseISO(t.dueDate)) && !t.isDone);
+  }, [data.tasks]);
 
-    const updateTask = (task: Task) => {
-      setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === task.id ? task : t) }));
+  const addTask = useCallback((taskData: Omit<Task, 'id' | 'createdAt' | 'isDone'>): Task => {
+    const newTask: Task = {
+      ...taskData,
+      id: crypto.randomUUID(),
+      isDone: false,
+      createdAt: new Date().toISOString(),
     };
+    setData(d => ({ ...d, tasks: [...d.tasks, newTask] }));
+    return newTask;
+  }, [setData]);
 
-    const deleteTask = (taskId: string) => {
-      setData(d => ({ ...d, tasks: d.tasks.filter(t => t.id !== taskId) }));
-    };
+  const updateTask = useCallback((task: Task) => {
+    setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === task.id ? task : t) }));
+  }, [setData]);
 
-    const getNotesByProjectId = (projectId: string) => {
-      return data.notes.filter(n => n.projectId === projectId).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    };
+  const deleteTask = useCallback((taskId: string) => {
+    setData(d => ({ ...d, tasks: d.tasks.filter(t => t.id !== taskId) }));
+  }, [setData]);
 
-    const addNote = (noteData: Omit<Note, 'id' | 'createdAt'>): Note => {
-      const newNote: Note = {
-        ...noteData,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-      };
-      setData(d => ({ ...d, notes: [...d.notes, newNote] }));
-      return newNote;
-    };
+  const getNotesByProjectId = useCallback((projectId: string) => {
+    return data.notes.filter(n => n.projectId === projectId).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [data.notes]);
 
-    const updateNote = (note: Note) => {
-      setData(d => ({ ...d, notes: d.notes.map(n => n.id === note.id ? note : n) }));
+  const addNote = useCallback((noteData: Omit<Note, 'id' | 'createdAt'>): Note => {
+    const newNote: Note = {
+      ...noteData,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
     };
+    setData(d => ({ ...d, notes: [...d.notes, newNote] }));
+    return newNote;
+  }, [setData]);
 
-    const deleteNote = (noteId: string) => {
-      setData(d => ({ ...d, notes: d.notes.filter(n => n.id !== noteId) }));
-    };
-    
-    const importData = (importedData: AppData): boolean => {
-      if (importedData && importedData.projects && importedData.tasks && importedData.notes) {
-        // Keep existing API key if not present in imported data
-        const finalData = { ...importedData, apiKey: importedData.apiKey || data.apiKey };
-        setData(finalData);
-        return true;
-      }
-      return false;
-    };
+  const updateNote = useCallback((note: Note) => {
+    setData(d => ({ ...d, notes: d.notes.map(n => n.id === note.id ? note : n) }));
+  }, [setData]);
 
-    return { 
-      data,
-      setApiKey, 
-      getProjectById,
-      addProject,
-      updateProject,
-      deleteProject,
-      getTasksByProjectId,
-      getTodaysTasks,
-      addTask,
-      updateTask,
-      deleteTask,
-      getNotesByProjectId,
-      addNote,
-      updateNote,
-      deleteNote,
-      importData
-    };
-  }, [data, setData, setApiKey]);
+  const deleteNote = useCallback((noteId: string) => {
+    setData(d => ({ ...d, notes: d.notes.filter(n => n.id !== noteId) }));
+  }, [setData]);
+
+  const importData = useCallback((importedData: AppData): boolean => {
+    if (importedData && importedData.projects && importedData.tasks && importedData.notes) {
+      const finalData = { ...importedData, apiKey: importedData.apiKey || data.apiKey };
+      setData(finalData);
+      return true;
+    }
+    return false;
+  }, [setData, data.apiKey]);
+
+  const value = useMemo(() => ({
+    data,
+    setApiKey,
+    addProject,
+    updateProject,
+    deleteProject,
+    getProjectById,
+    getTasksByProjectId,
+    getTodaysTasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    getNotesByProjectId,
+    addNote,
+    updateNote,
+    deleteNote,
+    importData
+  }), [
+    data, setApiKey, addProject, updateProject, deleteProject, getProjectById,
+    getTasksByProjectId, getTodaysTasks, addTask, updateTask, deleteTask,
+    getNotesByProjectId, addNote, updateNote, deleteNote, importData
+  ]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

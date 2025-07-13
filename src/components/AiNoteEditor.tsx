@@ -63,7 +63,7 @@ export function AiNoteEditor({
 
       const result = await generateNoteAction({ contextNotes, prompt }, data.apiKey);
 
-      if (result) {
+      if (result && result.title !== 'AI Generation Failed') {
         onNoteGenerated(result);
         toast({
           title: "AI Content Generated",
@@ -73,7 +73,7 @@ export function AiNoteEditor({
         toast({
           variant: "destructive",
           title: "AI Generation Failed",
-          description: "Could not generate content. Please check your API key and try again.",
+          description: result?.content || "Could not generate content. Please check your API key and try again.",
         });
       }
     });
