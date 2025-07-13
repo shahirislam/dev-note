@@ -3,7 +3,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { noteGenerationInputSchema, type NoteGenerationInput, noteGenerationOutputSchema, type NoteGenerationOutput } from '@/ai/schemas/note-schema';
-import { googleAI } from '@genkit-ai/googleai';
 
 // Update input schema to include the API key
 const noteGenerationWithKeyInputSchema = noteGenerationInputSchema.extend({
@@ -46,19 +45,12 @@ const noteFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-        const { output } = await ai.generate({
-            model: googleAI.model('gemini-1.5-flash-latest'),
-            prompt: noteGenerationPrompt.prompt, 
-            input: {
-                contextNotes: input.contextNotes,
-                prompt: input.prompt,
-            },
-            output: {
-                schema: noteGenerationOutputSchema,
-            },
-            config: {
-                auth: { apiKey: input.apiKey! },
-            }
+        const { output } = await noteGenerationPrompt({
+            contextNotes: input.contextNotes,
+            prompt: input.prompt,
+        }, {
+            auth: { apiKey: input.apiKey! },
+            model: 'gemini-1.5-flash-latest'
         });
 
         return output!;
