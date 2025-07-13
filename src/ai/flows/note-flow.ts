@@ -45,14 +45,18 @@ const noteFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-        const { output } = await noteGenerationPrompt({
+        const { output } = await noteGenerationPrompt(
+          {
             contextNotes: input.contextNotes,
             prompt: input.prompt,
-        }, {
-            auth: { apiKey: input.apiKey! },
-            model: 'gemini-1.5-flash-latest'
-        });
-
+          },
+          {
+            config: {
+              auth: { apiKey: input.apiKey! },
+              model: 'gemini-1.5-flash-latest'
+            }
+          }
+        );
         return output!;
     } catch (error) {
         console.error("Error generating note with LLM:", error);
