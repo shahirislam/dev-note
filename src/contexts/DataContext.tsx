@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
@@ -55,7 +56,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [setData, data.projects]);
 
   const updateProject = useCallback((project: Project) => {
-    setData(d => ({ ...d, projects: d.projects.map(p => p.id === project.id ? project : p) }));
+    setData(d => ({ ...d, projects: d.projects.map(p => p.id === project.id ? { ...p, title: project.title } : p) }));
   }, [setData]);
 
   const deleteProject = useCallback((projectId: string) => {
@@ -119,8 +120,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [setData]);
 
   const importData = useCallback((importedData: AppData): boolean => {
-    if (importedData && importedData.projects && importedData.tasks && importedData.notes) {
-      const finalData = { ...importedData, apiKey: importedData.apiKey || data.apiKey };
+    // Validate the imported data structure before setting it
+    if (
+      importedData &&
+      Array.isArray(importedData.projects) &&
+      Array.isArray(importedData.tasks) &&
+      Array.isArray(importedData.notes) &&
+      'apiKey' in importedData
+    ) {
+      const finalData = { ...defaultAppData, ...importedData, apiKey: importedData.apiKey || data.apiKey };
       setData(finalData);
       return true;
     }
