@@ -27,52 +27,52 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const completedTasks = tasks.filter(task => task.isDone).length;
   const progress = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
 
-  const handleMenuSelect = (e: Event) => {
-    e.preventDefault();
-  };
-
   return (
     <>
-      <Card className="h-full flex flex-col hover:border-primary transition-colors duration-300 relative group">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Project options</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-            <DropdownMenuItem onSelect={() => setIsRenameDialogOpen(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              <span>Rename</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setIsDeleteDialogOpen(true)} className="text-destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
+      <Card className="h-full flex flex-col hover:border-primary transition-colors duration-300">
         <Link href={`/project/${project.id}`} className="block h-full flex flex-col">
           <CardHeader>
             <div className="flex items-start justify-between">
-              <CardTitle className="font-headline pr-10">{project.title}</CardTitle>
-              <FolderKanban className="h-5 w-5 text-muted-foreground" />
+                <div className="flex-1">
+                    <CardTitle className="font-headline pr-4">{project.title}</CardTitle>
+                    <CardDescription>Created: {formatDate(project.createdAt)}</CardDescription>
+                </div>
+                <div className="flex-shrink-0">
+                    <FolderKanban className="h-5 w-5 text-muted-foreground" />
+                </div>
             </div>
-            <CardDescription>Created: {formatDate(project.createdAt)}</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow">
             <p className="text-sm text-muted-foreground mb-2">
               {completedTasks} of {tasks.length} tasks completed
             </p>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex-col items-start gap-4">
             <Progress value={progress} className="w-full" />
+            <div className="flex w-full justify-end -mb-2 -mr-2">
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => e.preventDefault()}
+                        >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Manage
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" onClick={(e) => e.preventDefault()}>
+                        <DropdownMenuItem onSelect={() => setIsRenameDialogOpen(true)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>Rename</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setIsDeleteDialogOpen(true)} className="text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>Delete</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
           </CardFooter>
         </Link>
       </Card>
@@ -91,3 +91,4 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     </>
   );
 }
+
