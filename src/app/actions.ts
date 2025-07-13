@@ -3,21 +3,18 @@
 import { generateNote } from '@/ai/flows/note-flow';
 import { noteGenerationInputSchema, type NoteGenerationInput, type NoteGenerationOutput } from '@/ai/schemas/note-schema';
 import { z } from 'zod';
-import { ai } from '@/ai/genkit';
-import { googleAI } from '@genkit-ai/googleai';
 
 export async function generateNoteAction(input: NoteGenerationInput, apiKey: string): Promise<NoteGenerationOutput | null> {
   try {
-    // Configure Genkit on the server with the user's key for this action
     if (!apiKey) {
       throw new Error("API key is missing.");
     }
-    ai.configure({
-      plugins: [googleAI({ apiKey })],
-    });
     
+    // Validate the user-provided input against the base schema
     const validatedInput = noteGenerationInputSchema.parse(input);
-    const result = await generateNote(validatedInput);
+    
+    // Call the flow with the validated input and the API key
+    const result = await generateNote({ ...validatedInput, apiKey });
 
     if (result.title === 'Error') {
       return null;
@@ -29,7 +26,6 @@ export async function generateNoteAction(input: NoteGenerationInput, apiKey: str
     if (error instanceof z.ZodError) {
       return null;
     }
-    // Handle other potential errors, like API key issues from Genkit
     return null;
   }
 }

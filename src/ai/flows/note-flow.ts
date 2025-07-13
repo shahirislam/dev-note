@@ -3,6 +3,14 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { noteGenerationInputSchema, type NoteGenerationInput, noteGenerationOutputSchema, type NoteGenerationOutput } from '@/ai/schemas/note-schema';
+import { googleAI } from '@genkit-ai/googleai';
+
+// Update input schema to include the API key
+const noteGenerationWithKeyInputSchema = noteGenerationInputSchema.extend({
+    apiKey: z.string().optional(),
+});
+type NoteGenerationWithKeyInput = z.infer<typeof noteGenerationWithKeyInputSchema>;
+
 
 const noteGenerationPrompt = ai.definePrompt({
     name: "noteGenerationPrompt",
@@ -33,16 +41,28 @@ Generate a title and content for the new note.
 const noteFlow = ai.defineFlow(
   {
     name: 'noteFlow',
-    inputSchema: noteGenerationInputSchema,
+    inputSchema: noteGenerationWithKeyInputSchema,
     outputSchema: noteGenerationOutputSchema,
   },
   async (input) => {
     try {
-        const { output } = await noteGenerationPrompt(input);
+        const model = googleAI({ apiKey: input.apiKey });
+
+        const { output } = await ai.generate({
+            model: model,
+            prompt: noteGenerationPrompt.prompt, // We use the raw prompt string
+            input: {
+                contextNotes: input.contextNotes,
+                prompt: input.prompt,
+            },
+            output: {
+                schema: noteGenerationOutputSchema,
+            },
+        });
+
         return output!;
     } catch (error) {
         console.error("Error generating note with LLM:", error);
-        // Return a structured error response
         return {
             title: "Error",
             content: "Sorry, I was unable to generate a note at this time."
@@ -51,6 +71,7 @@ const noteFlow = ai.defineFlow(
   }
 );
 
-export async function generateNote(input: NoteGenerationInput): Promise<NoteGenerationOutput> {
+// The exported function now accepts the key
+export async function generateNote(input: NoteGenerationWithKeyInput): Promise<NoteGenerationOutput> {
   return await noteFlow(input);
 }
