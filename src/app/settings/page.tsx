@@ -108,24 +108,6 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Notifications</CardTitle>
-          <CardDescription>Manage how you receive notifications.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <Label htmlFor="notifications" className="text-base">Enable Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                (This is a demo and does not send real notifications)
-              </p>
-            </div>
-            <Switch id="notifications" disabled />
-          </div>
-        </CardContent>
-      </Card>
       
       <Card>
         <CardHeader>
