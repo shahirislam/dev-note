@@ -10,14 +10,22 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useData } from "@/contexts/DataContext";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SettingsPage() {
   const { data, setApiKey } = useData();
-  const [apiKeyInput, setApiKeyInput] = useState(data.apiKey || "");
+  const [apiKeyInput, setApiKeyInput] = useState("");
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setApiKeyInput(data.apiKey || "");
+  }, [data.apiKey]);
+  
 
   const handleSaveApiKey = () => {
     setApiKey(apiKeyInput);
@@ -26,6 +34,21 @@ export default function SettingsPage() {
       description: "Your Gemini API key has been updated.",
     });
   };
+
+  if (!isClient) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-8 w-40" />
+        <div>
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-5 w-80 mt-2" />
+        </div>
+        <Skeleton className="w-full h-48" />
+        <Skeleton className="w-full h-48" />
+        <Skeleton className="w-full h-48" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
