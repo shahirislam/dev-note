@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Settings, LayoutGrid } from 'lucide-react';
+import { Settings, Notebook } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Header() {
@@ -10,7 +10,7 @@ export default function Header() {
       <div className="container flex h-14 max-w-5xl items-center">
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <LayoutGrid className="h-6 w-6 text-primary" />
+            <Notebook className="h-6 w-6 text-primary" />
             <span className="font-bold">DevDiary</span>
           </Link>
         </div>
