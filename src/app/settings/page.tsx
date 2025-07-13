@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -10,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { useData } from "@/contexts/DataContext";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const { data, setApiKey } = useData();
@@ -27,6 +29,12 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
+       <Button asChild variant="outline" size="sm" className="mb-4">
+        <Link href="/">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Link>
+      </Button>
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground">Manage your application settings and data.</p>
