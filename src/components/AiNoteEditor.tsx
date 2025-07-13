@@ -14,14 +14,15 @@ import { Label } from "./ui/label";
 interface AiNoteEditorProps extends TextareaProps {
   projectId: string;
   currentNoteId?: string;
-  onContentChange: (content: string) => void;
+  onNoteGenerated: (data: { title: string; content: string }) => void;
+  contentValue: string;
 }
 
 export function AiNoteEditor({
   projectId,
   currentNoteId,
-  value,
-  onContentChange,
+  onNoteGenerated,
+  contentValue,
   ...props
 }: AiNoteEditorProps) {
   const [isPending, startTransition] = useTransition();
@@ -48,10 +49,10 @@ export function AiNoteEditor({
       const result = await generateNoteAction({ contextNotes, prompt });
 
       if (result) {
-        onContentChange(result);
+        onNoteGenerated(result);
         toast({
           title: "AI Content Generated",
-          description: "The AI has generated content for your note.",
+          description: "The AI has generated content and a title for your note.",
         });
       } else {
         toast({
@@ -66,8 +67,7 @@ export function AiNoteEditor({
   return (
     <div className="space-y-4">
       <Textarea
-        value={value}
-        onChange={(e) => onContentChange(e.target.value)}
+        value={contentValue}
         {...props}
       />
       <Card className="bg-muted/50">
@@ -87,7 +87,7 @@ export function AiNoteEditor({
                 </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-                Use the AI to generate content based on other notes in this project.
+                Use the AI to generate a title and content based on other notes in this project.
             </p>
         </CardContent>
       </Card>

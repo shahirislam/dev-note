@@ -53,16 +53,18 @@ export default function AddNoteDialog({ open, onOpenChange, projectId, noteToEdi
   });
 
   useEffect(() => {
-    if (noteToEdit) {
-      form.reset({
-        title: noteToEdit.title,
-        content: noteToEdit.content,
-      });
-    } else {
-      form.reset({
-        title: "",
-        content: "",
-      });
+    if (open) {
+      if (noteToEdit) {
+        form.reset({
+          title: noteToEdit.title,
+          content: noteToEdit.content,
+        });
+      } else {
+        form.reset({
+          title: "",
+          content: "",
+        });
+      }
     }
   }, [noteToEdit, form, open]);
 
@@ -84,6 +86,11 @@ export default function AddNoteDialog({ open, onOpenChange, projectId, noteToEdi
     form.reset();
     onOpenChange(false);
   }
+
+  const handleNoteGenerated = (data: { title: string; content: string }) => {
+    form.setValue("title", data.title);
+    form.setValue("content", data.content, { shouldValidate: true });
+  };
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -119,8 +126,9 @@ export default function AddNoteDialog({ open, onOpenChange, projectId, noteToEdi
                     <AiNoteEditor
                       projectId={projectId}
                       currentNoteId={noteToEdit?.id}
-                      value={field.value}
-                      onContentChange={field.onChange}
+                      onNoteGenerated={handleNoteGenerated}
+                      contentValue={field.value}
+                      onChange={field.onChange}
                       placeholder="Type your note here. Use the AI to help you!"
                       rows={8}
                     />
