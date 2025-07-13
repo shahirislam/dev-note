@@ -1,21 +1,21 @@
-import { defineFlow } from '@genkit-ai/flow';
-import { ai } from '../genkit';
+'use server';
+
+import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 export const noteGenerationInputSchema = z.object({
   contextNotes: z.array(z.string()),
   prompt: z.string(),
 });
+export type NoteGenerationInput = z.infer<typeof noteGenerationInputSchema>;
 
-export const noteFlow = defineFlow(
+const noteFlow = ai.defineFlow(
   {
     name: 'noteFlow',
     inputSchema: noteGenerationInputSchema,
     outputSchema: z.string(),
   },
   async (input) => {
-    const llm = ai.model('googleai/gemini-2.0-flash');
-    
     const contextText = input.contextNotes.length > 0 
       ? `Here are some existing notes for context:\n${input.contextNotes.map(note => `- ${note}`).join('\n')}`
       : "There are no existing notes for context.";
@@ -34,14 +34,18 @@ Generated Note:
     `;
 
     try {
-        const result = await llm.generate({
+        const { text } = await ai.generate({
             prompt: fullPrompt,
         });
 
-        return result.text();
+        return text;
     } catch (error) {
         console.error("Error generating note with LLM:", error);
         return "Sorry, I was unable to generate a note at this time.";
     }
   }
 );
+
+export async function generateNote(input: NoteGenerationInput): Promise<string> {
+  return await noteFlow(input);
+}
