@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,11 +31,15 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import type { DateRange } from "react-day-picker";
 
 const formSchema = z.object({
   title: z.string().trim().min(1, { message: "Task title is required." }).max(100),
   description: z.string().max(500).optional(),
-  dueDate: z.date().optional(),
+  dateRange: z.object({
+    from: z.date().optional(),
+    to: z.date().optional(),
+  }).optional(),
 });
 
 interface AddTaskDialogProps {
@@ -57,6 +60,7 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
     defaultValues: {
       title: "",
       description: "",
+      dateRange: { from: undefined, to: undefined }
     },
   });
 
@@ -65,13 +69,16 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
       form.reset({
         title: taskToEdit.title,
         description: taskToEdit.description,
-        dueDate: taskToEdit.dueDate ? new Date(taskToEdit.dueDate) : undefined,
+        dateRange: {
+          from: taskToEdit.startDate ? new Date(taskToEdit.startDate) : undefined,
+          to: taskToEdit.endDate ? new Date(taskToEdit.endDate) : undefined,
+        },
       });
     } else {
       form.reset({
         title: "",
         description: "",
-        dueDate: undefined,
+        dateRange: { from: undefined, to: undefined },
       });
     }
   }, [taskToEdit, form, open]);
@@ -80,10 +87,11 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
     setIsSubmitting(true);
     try {
       const taskData = {
-        ...values,
-        projectId,
+        title: values.title,
         description: values.description || '',
-        dueDate: values.dueDate ? values.dueDate.toISOString() : null,
+        projectId,
+        startDate: values.dateRange?.from ? values.dateRange.from.toISOString() : null,
+        endDate: values.dateRange?.to ? values.dateRange.to.toISOString() : null,
       };
 
       if (isEditing) {
@@ -146,10 +154,10 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
             />
              <FormField
               control={form.control}
-              name="dueDate"
+              name="dateRange"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Due Date (Optional)</FormLabel>
+                  <FormLabel>Task Dates (Optional)</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -157,13 +165,20 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
                           variant={"outline"}
                           className={cn(
                             "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            !field.value?.from && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? (
-                            format(field.value, "PPP")
+                          {field.value?.from ? (
+                            field.value.to ? (
+                              <>
+                                {format(field.value.from, "LLL dd, y")} -{" "}
+                                {format(field.value.to, "LLL dd, y")}
+                              </>
+                            ) : (
+                              format(field.value.from, "LLL dd, y")
+                            )
                           ) : (
-                            <span>Pick a date</span>
+                            <span>Pick a date range</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -171,11 +186,12 @@ export default function AddTaskDialog({ open, onOpenChange, projectId, taskToEdi
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode="single"
-                        selected={field.value}
+                        mode="range"
+                        selected={field.value as DateRange}
                         onSelect={field.onChange}
                         disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                         initialFocus
+                        numberOfMonths={2}
                       />
                     </PopoverContent>
                   </Popover>

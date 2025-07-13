@@ -28,9 +28,9 @@ export default function TodaysTasks() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <CalendarCheck2 className="h-6 w-6 text-primary" />
-            <CardTitle>Tasks Due Today</CardTitle>
+            <CardTitle>Tasks for Today</CardTitle>
           </div>
-          <CardDescription>Here are the tasks you should focus on today.</CardDescription>
+          <CardDescription>These tasks are scheduled for today.</CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="space-y-3">

@@ -3,7 +3,8 @@ export interface Task {
   projectId: string;
   title: string;
   description: string;
-  dueDate: string | null;
+  startDate: string | null;
+  endDate: string | null;
   isDone: boolean;
   createdAt: string;
 }

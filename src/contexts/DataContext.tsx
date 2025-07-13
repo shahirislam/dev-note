@@ -4,7 +4,7 @@
 import React, { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Project, Task, Note, AppData } from '@/lib/types';
-import { isToday, parseISO } from 'date-fns';
+import { isToday, parseISO, isWithinInterval, startOfDay } from 'date-fns';
 
 const defaultAppData: AppData = {
   projects: [],
@@ -75,7 +75,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [data.tasks]);
 
   const getTodaysTasks = useCallback(() => {
-    return data.tasks.filter(t => t.dueDate && isToday(parseISO(t.dueDate)) && !t.isDone);
+    const today = startOfDay(new Date());
+    return data.tasks.filter(t => {
+      if (t.isDone) return false;
+      if (t.startDate) {
+        const start = parseISO(t.startDate);
+        const end = t.endDate ? parseISO(t.endDate) : start;
+        return isWithinInterval(today, { start, end });
+      }
+      return false;
+    });
   }, [data.tasks]);
 
   const addTask = useCallback((taskData: Omit<Task, 'id' | 'createdAt' | 'isDone'>): Task => {

@@ -54,10 +54,13 @@ export default function TaskItem({ task }: TaskItemProps) {
           </label>
           
           <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-             {task.dueDate && (
+             {task.startDate && (
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                <span>{formatDate(task.dueDate)}</span>
+                <span>
+                  {formatDate(task.startDate)}
+                  {task.endDate && task.startDate !== task.endDate ? ` - ${formatDate(task.endDate)}` : ''}
+                </span>
               </div>
             )}
           </div>
