@@ -2,20 +2,25 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
-import { Textarea, TextareaProps } from "./ui/textarea";
-import { Sparkles } from "lucide-react";
+import { Textarea } from "./ui/textarea";
+import { AlertCircle, Sparkles } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { generateNoteAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "./ui/input";
 import { Card, CardContent } from "./ui/card";
 import { Label } from "./ui/label";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import Link from "next/link";
 
-interface AiNoteEditorProps extends TextareaProps {
+interface AiNoteEditorProps {
   projectId: string;
   currentNoteId?: string;
   onNoteGenerated: (data: { title: string; content: string }) => void;
   contentValue: string;
+  rows?: number;
+  placeholder?: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 export function AiNoteEditor({
@@ -26,9 +31,11 @@ export function AiNoteEditor({
   ...props
 }: AiNoteEditorProps) {
   const [isPending, startTransition] = useTransition();
-  const { getNotesByProjectId } = useData();
+  const { data, getNotesByProjectId } = useData();
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
+
+  const hasApiKey = !!data.apiKey;
 
   const handleGenerate = () => {
     if (!prompt) {
@@ -39,6 +46,14 @@ export function AiNoteEditor({
         });
         return;
     }
+    if (!hasApiKey) {
+        toast({
+            variant: "destructive",
+            title: "API Key Missing",
+            description: "Please set your Gemini API key in settings.",
+        });
+        return;
+    }
 
     startTransition(async () => {
       const allNotes = getNotesByProjectId(projectId);
@@ -46,7 +61,7 @@ export function AiNoteEditor({
         .filter((note) => note.id !== currentNoteId)
         .map((note) => `Title: ${note.title}\nContent: ${note.content}`);
 
-      const result = await generateNoteAction({ contextNotes, prompt });
+      const result = await generateNoteAction({ contextNotes, prompt }, data.apiKey);
 
       if (result) {
         onNoteGenerated(result);
@@ -58,7 +73,7 @@ export function AiNoteEditor({
         toast({
           variant: "destructive",
           title: "AI Generation Failed",
-          description: "Could not generate content. Please try again.",
+          description: "Could not generate content. Please check your API key and try again.",
         });
       }
     });
@@ -72,6 +87,15 @@ export function AiNoteEditor({
       />
       <Card className="bg-muted/50">
         <CardContent className="pt-6 space-y-4">
+            {!hasApiKey && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>API Key Required</AlertTitle>
+                <AlertDescription>
+                  Please <Link href="/settings" className="font-semibold underline">add your Gemini API key</Link> to enable AI features.
+                </AlertDescription>
+              </Alert>
+            )}
             <Label htmlFor="ai-prompt">AI Prompt</Label>
             <div className="flex gap-2">
                 <Input
@@ -79,9 +103,9 @@ export function AiNoteEditor({
                     placeholder="e.g., Summarize the context notes"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    disabled={isPending}
+                    disabled={isPending || !hasApiKey}
                 />
-                <Button onClick={handleGenerate} disabled={isPending} className="whitespace-nowrap">
+                <Button onClick={handleGenerate} disabled={isPending || !hasApiKey} className="whitespace-nowrap">
                     <Sparkles className="mr-2 h-4 w-4" />
                     {isPending ? "Generating..." : "Generate"}
                 </Button>

@@ -26,4 +26,5 @@ export interface AppData {
   projects: Project[];
   tasks: Task[];
   notes: Note[];
+  apiKey: string;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Project, Task, Note, AppData } from '@/lib/types';
 import { isToday, parseISO } from 'date-fns';
@@ -9,10 +9,12 @@ const defaultAppData: AppData = {
   projects: [],
   tasks: [],
   notes: [],
+  apiKey: '',
 };
 
 interface DataContextType {
   data: AppData;
+  setApiKey: (key: string) => void;
   addProject: (title: string) => Project;
   updateProject: (project: Project) => void;
   deleteProject: (projectId: string) => void;
@@ -34,6 +36,10 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export function DataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useLocalStorage<AppData>('devflow-data', defaultAppData);
 
+  const setApiKey = useCallback((key: string) => {
+    setData(d => ({...d, apiKey: key}));
+  }, [setData]);
+
   const value = useMemo(() => {
     const getProjectById = (projectId: string) => data.projects.find(p => p.id === projectId);
 
@@ -53,6 +59,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     
     const deleteProject = (projectId: string) => {
       setData(d => ({
+        ...d,
         projects: d.projects.filter(p => p.id !== projectId),
         tasks: d.tasks.filter(t => t.projectId !== projectId),
         notes: d.notes.filter(n => n.projectId !== projectId),
@@ -110,14 +117,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     
     const importData = (importedData: AppData): boolean => {
       if (importedData && importedData.projects && importedData.tasks && importedData.notes) {
-        setData(importedData);
+        // Keep existing API key if not present in imported data
+        const finalData = { ...importedData, apiKey: importedData.apiKey || data.apiKey };
+        setData(finalData);
         return true;
       }
       return false;
     };
 
     return { 
-      data, 
+      data,
+      setApiKey, 
       getProjectById,
       addProject,
       updateProject,
@@ -133,7 +143,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       deleteNote,
       importData
     };
-  }, [data, setData]);
+  }, [data, setData, setApiKey]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

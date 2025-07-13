@@ -3,16 +3,27 @@
 import { generateNote } from '@/ai/flows/note-flow';
 import { noteGenerationInputSchema, type NoteGenerationInput, type NoteGenerationOutput } from '@/ai/schemas/note-schema';
 import { z } from 'zod';
+import { configureGenkit } from '@/ai/genkit';
 
-export async function generateNoteAction(input: NoteGenerationInput): Promise<NoteGenerationOutput | null> {
+export async function generateNoteAction(input: NoteGenerationInput, apiKey: string): Promise<NoteGenerationOutput | null> {
   try {
+    // Configure Genkit on the server with the user's key for this action
+    configureGenkit(apiKey);
+    
     const validatedInput = noteGenerationInputSchema.parse(input);
-    return await generateNote(validatedInput);
+    const result = await generateNote(validatedInput);
+
+    if (result.title === 'Error') {
+      return null;
+    }
+    return result;
+
   } catch (error) {
     console.error("Error running noteFlow action:", error);
     if (error instanceof z.ZodError) {
       return null;
     }
+    // Handle other potential errors, like API key issues from Genkit
     return null;
   }
 }
