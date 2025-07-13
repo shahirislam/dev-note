@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Settings, Notebook } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '../ThemeToggle';
 
 export default function Header() {
   return (
@@ -16,6 +17,7 @@ export default function Header() {
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
           <nav className="flex items-center">
+            <ThemeToggle />
             <Link href="/settings" passHref>
               <Button variant="ghost" size="icon">
                 <Settings className="h-5 w-5" />
