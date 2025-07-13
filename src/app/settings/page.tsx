@@ -107,6 +107,26 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Online Sync</CardTitle>
+          <CardDescription>
+            Sync your data across devices automatically. (Coming Soon)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="online-sync" className="text-base">Enable Online Sync</Label>
+               <p className="text-sm text-muted-foreground">
+                This feature is not yet available.
+              </p>
+            </div>
+            <Switch id="online-sync" disabled />
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
