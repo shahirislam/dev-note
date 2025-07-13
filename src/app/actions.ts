@@ -1,6 +1,7 @@
 'use server';
 
-import { generateNote, noteGenerationInputSchema, type NoteGenerationInput } from '@/ai/flows/note-flow';
+import { generateNote } from '@/ai/flows/note-flow';
+import { noteGenerationInputSchema, type NoteGenerationInput } from '@/ai/schemas/note-schema';
 import { z } from 'zod';
 
 export async function generateNoteAction(input: NoteGenerationInput) {
