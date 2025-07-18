@@ -107,7 +107,7 @@ export default function AddNoteDialog({ open, onOpenChange, projectId, noteToEdi
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="w-[95vw] max-w-[600px] rounded-lg overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Note" : "Add New Note"}</DialogTitle>
           <DialogDescription>
