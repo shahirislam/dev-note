@@ -31,13 +31,10 @@ To run this project locally, follow these steps:
     ```
 
 3.  **Configure Google Gemini API Key:**
-    For the AI note generation feature to work, you need a Google Gemini API key.
-    *   Go to the [Google AI Studio](https://aistudio.google.com/app/apikey) to get your API key.
-    *   Create a `.env.local` file in the root of your project (if it doesn't exist) and add your API key:
-        ```
-        GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-        ```
-        Replace `YOUR_GEMINI_API_KEY` with your actual key.
+    The AI-powered features require a Google Gemini API key.
+    *   Go to the [Google AI Studio](https://aistudio.google.com/app/apikey) to get your free API key.
+    *   Once the application is running, navigate to the "Settings" page.
+    *   Enter your API key in the designated field and save. The key will be stored securely in your browser's local storage.
 
 4.  **Run the development server:**
     ```bash
@@ -47,13 +44,7 @@ To run this project locally, follow these steps:
 
 ## Deployment
 
-This project can be deployed to platforms like Vercel, Netlify, or others that support Next.js applications.
-
-**Important for AI Features in Deployment:**
-
-When deploying, you **must** set the `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) environment variable in your deployment platform's settings. This is crucial for the server-side AI generation to function correctly. The value should be your Google Gemini API key.
-
-*   **Example (Vercel):** Go to your project settings, navigate to "Environment Variables," and add `GEMINI_API_KEY` with your key as the value.
+This project is designed to be deployed on any platform that supports Next.js (e.g., Vercel, Netlify). Since all data, including the API key, is stored client-side in local storage, no special environment variables are needed for the AI features to work upon deployment.
 
 ## Technologies Used
 
@@ -68,10 +59,28 @@ When deploying, you **must** set the `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) envi
 *   date-fns (for date manipulation)
 *   pnpm (package manager)
 
+## Project Structure
+
+A brief overview of the key directories in this project:
+
+-   `src/app`: Contains the main pages and routing for the application.
+-   `src/components`: Reusable React components used throughout the application.
+-   `src/contexts`: React context providers for managing global state (e.g., data, theme).
+-   `src/ai`: All AI-related logic, including Genkit flows and schemas.
+-   `src/lib`: Utility functions and type definitions.
+
 ## Contributing
 
-Contributions are welcome! Please feel free to open issues or submit pull requests.
+We welcome contributions from the community! To contribute, please follow these steps:
+
+1.  **Fork the repository.**
+2.  **Create a new branch** for your feature or bug fix: `git checkout -b feature/your-feature-name`.
+3.  **Make your changes** and commit them with clear, descriptive messages.
+4.  **Push your changes** to your fork.
+5.  **Open a pull request** to the `main` branch of this repository.
+
+Please also read our [Code of Conduct](CODE_OF_CONDUCT.md) and ensure your contributions adhere to it.
 
 ## License
 
-[Specify your license here, e.g., MIT License]
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
